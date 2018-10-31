@@ -73,7 +73,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Posting comment.\n")
 	httpClient := http.Client{}
 
-	requestBody := "{\"body\": \"View this PR on http://" + commitHash + "." + *hostDomain + "\"}"
+	requestBody := "{\"body\": \"View this PR on https://" + commitHash + "." + *hostDomain + "\"}"
 	requestURL := "https://api.github.com/repos/" + targetRepoSlug + "/issues/" + pullRequestNumber + "/comments"
 	log.Printf("Request URL: \"%s\"\n", requestURL)
 	log.Printf("Request body: \"%s\"\n", requestBody)
