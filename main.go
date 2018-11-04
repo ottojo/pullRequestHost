@@ -92,6 +92,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		log.Println(string(responseBody))
 	}
 
+	log.Printf("Deleting build dir \"%s\"", buildDir)
+	err = os.RemoveAll(buildDir)
+	PrintError(err)
+
 	w.WriteHeader(200)
 	log.Printf("Done.")
 }
