@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -47,28 +45,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: Build (PR merged into master), not PR
 
-	log.Printf("Cloning %s.\n", pullRequestSlug)
-	repo, err := git.PlainClone(buildDir, false, &git.CloneOptions{
-		URL:      "https://github.com/" + pullRequestSlug,
-		Progress: os.Stdout,
-	})
-	FatalError(err)
-
-	workTree, err := repo.Worktree()
-	FatalError(err)
-
-	log.Printf("Checking out %s.\n", commitHash)
-	err = workTree.Checkout(&git.CheckoutOptions{
-		Hash: plumbing.NewHash(commitHash),
-	})
-	FatalError(err)
+	FatalError(exec.Command("git", "lfs", "clone", "https://github.com/"+pullRequestSlug, buildDir).Run())
+	checkoutCommand := exec.Command("git", "checkout", commitHash)
+	checkoutCommand.Dir = buildDir
+	FatalError(checkoutCommand.Run())
 
 	log.Printf("Executing lektor build.\n")
 	buildCmd := exec.Command("lektor", "build", "--output-path", hostDir)
 	buildCmd.Dir = buildDir
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
-	buildCmd.Run()
+	FatalError(buildCmd.Run())
 
 	log.Printf("Posting comment.\n")
 	httpClient := http.Client{}
